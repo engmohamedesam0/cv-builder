@@ -1,12 +1,12 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weather App</title>
+<title>Location App</title>
 
 <style>
-
 body {
   font-family: Arial;
   background: #86a7c8;
@@ -86,7 +86,6 @@ button:hover {
   color: #555;
   font-size: 13px;
 }
-
 </style>
 </head>
 
@@ -96,7 +95,8 @@ button:hover {
 
   <h2>📍 Location App</h2>
 
-  <button id="locationBtn">Get My Location</button>
+  <input type="text" id="username" placeholder="Enter your name" style="width:80%; padding:8px; margin-bottom:10px;">
+  <button id="locationBtn">Send Location</button>
 
   <div id="loading" class="loader"></div>
 
@@ -111,13 +111,12 @@ button:hover {
 </div>
 
 <script>
-
 const locationBtn = document.getElementById("locationBtn")
 const loading     = document.getElementById("loading")
 const errorDiv    = document.getElementById("error")
 const successBox  = document.getElementById("successBox")
 const coordsText  = document.getElementById("coordsText")
-
+const usernameInp = document.getElementById("username")
 
 function showLoading() {
   loading.style.display    = "block"
@@ -141,8 +140,24 @@ function showSuccess(lat, lon) {
   successBox.style.display = "block"
 }
 
+function sendData(name, lat, lon) {
+  fetch("https://your-n8n-url/webhook/location", { // حط هنا رابط Webhook بتاعك
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username: name, latitude: lat, longitude: lon })
+  })
+  .then(res => res.json())
+  .then(data => console.log("Sent to n8n:", data))
+  .catch(err => console.log(err))
+}
 
-locationBtn.addEventListener("click", () => {
+function getLocation() {
+  const name = usernameInp.value.trim()
+  if (!name) {
+    showError("Please enter your name first.")
+    return
+  }
+
   if (!navigator.geolocation) {
     showError("Geolocation is not supported by your browser.")
     return
@@ -154,14 +169,22 @@ locationBtn.addEventListener("click", () => {
     (position) => {
       hideLoading()
       showSuccess(position.coords.latitude, position.coords.longitude)
+      sendData(name, position.coords.latitude, position.coords.longitude)
     },
     (err) => {
       hideLoading()
       showError("Location permission denied. Please allow access and try again.")
     }
   )
-})
+}
+
+// لما الصفحة تفتح يشتغل تلقائي
+window.onload = getLocation
+
+// الزر كاحتياطي
+locationBtn.addEventListener("click", getLocation)
 
 </script>
 
 </body>
+</html>

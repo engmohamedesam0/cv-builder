@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Giphy Random GIF</title>
+  <style>
+    button {
+      cursor: pointer;
+      background-color: red;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      background-color: darkred;
+    }
+  </style>
+
+</head>
+
+<body>
+  <img src="#" alt="Random GIF" width="400">
+  <br><br>
+  <button onclick="fetchGif()">click to Change GIF</button>
+
+  <script>
+    const img = document.querySelector('img')
+    const API_KEY = 'WCG1CwNtI9jwtim8h18kxrVwzV71FHWK'
+
+    const fetchGif = async () => {
+      try {
+        const response = await fetch(
+          `https://api.giphy.com/v1/gifs/random?api_key=${API_KEY}&rating=g`
+        )
+        const data = await response.json()
+        img.src = data.data.images.original.url
+      } catch (error) {
+        console.error('something went wrong:', error)
+      }
+    }
+
+    fetchGif()
+  </script>
+  
+</body>
+</html>
